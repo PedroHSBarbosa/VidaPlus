@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model UnidadeHospitalar {
+  id_unidade   Int    @id @default(autoincrement())
+  nome         String
+  endereco     String
+  tipo_unidade String
+
+  pacientes Paciente[]
+  medicos   Medico[]
+}
+
+model Paciente {
+  id_paciente       Int      @id @default(autoincrement())
+  id_unidade        Int
+  nome              String
+  cpf               String
+  data_nascimento   DateTime
+  historico_clinico String?
+
+  // Relacionamento com Unidade
+  unidade UnidadeHospitalar @relation(fields: [id_unidade], references: [id_unidade])
+
+  // Relacionamento com Consulta
+  consultas Consulta[]
+}
+
+model Medico {
+  id_medico     Int    @id @default(autoincrement())
+  id_unidade    Int
+  nome          String
+  crm           String
+  especialidade String
+  agenda_json   Json
+
+  // Relacionamento com Unidade
+  unidade UnidadeHospitalar @relation(fields: [id_unidade], references: [id_unidade])
+
+  // Relacionamento com Consulta
+  consultas Consulta[]
+}
+
+model Consulta {
+  id_consulta Int      @id @default(autoincrement())
+  id_paciente Int
+  id_medico   Int
+  data_hora   DateTime
+  status      String
+  tipo        String
+
+  // Relacionamento com Paciente
+  paciente Paciente @relation(fields: [id_paciente], references: [id_paciente])
+
+  // Relacionamento com Medico
+  medico Medico @relation(fields: [id_medico], references: [id_medico])
+
+  prontuario Prontuario?
+}
+
+model Prontuario {
+  id_prontuario Int      @id @default(autoincrement())
+  id_consulta   Int @unique
+  data_registro DateTime
+  descricao     String
+  prescricao    String
+
+  // Relacionamento com Consulta
+  consulta Consulta @relation(fields: [id_consulta], references: [id_consulta])
+}
