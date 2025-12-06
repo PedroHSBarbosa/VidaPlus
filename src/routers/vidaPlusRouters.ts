@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createConsultation, createDoctor, createMedicalRecord, createUnit, createUser, getAllDoctor, getAllUnit, getAllUser } from "../controllers/vidaPlusController";
+import { createConsultation, createDoctor, createMedicalRecord, createUnit, createUser, getAllConsultations, getAllDoctor, getAllUnit, getAllUser, getConsultationById, getDoctorAgenda, getMedicalRecordById } from "../controllers/vidaPlusController";
 
 
 export const mainRouter = Router();
@@ -21,3 +21,17 @@ mainRouter.get("/users", getAllUser);
 mainRouter.get("/units", getAllUnit);
 
 mainRouter.get("/doctors", getAllDoctor)
+
+mainRouter.get("/consultation/:id", getConsultationById)
+
+mainRouter.get("/consultations/doctor/:medicoId/:id", getDoctorAgenda)
+
+mainRouter.get("/medicalRecord/:id", getMedicalRecordById)
+
+mainRouter.get("/consultations", getAllConsultations)
+
+
+
+
+
+
