@@ -2,127 +2,147 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../libs/prisma";
 
 
+//             FUNÇÕES UTILITÁRIAS   =============================================================================
 
+/**
+ * converte e valida um campo para número id
+ * @param data 
+ * @param key 
+ * @returns 
+ */
 
-/*  -------------------------- Criação -------------------------- */
+const parseId = (data: any, key: string): number => {
+    const id = Number(data[key]);
+    if (Number.isNaN(id)) {
+        throw new Error(`${key} inválido`);
+    }
+    return id;
+};
 
+/**
+ * converte e valida uma string para objeto date
+ * @param dateString 
+ * @param defaultToNow 
+ * @returns 
+ */
+const parseDate = (dateString: any, defaultToNow: boolean = true): Date => {
+    if (dateString) {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            throw new Error(`Data inválida: ${dateString}`);
+        }
+        return date;
+    }
+    return defaultToNow ? new Date() : new Date();
+};
+
+/**
+ * converte uma string JSON para objeto, caso precise
+ * @param jsonString 
+ * @param key 
+ * @returns 
+ */
+const parseJson = (jsonString: any, key: string) => {
+    if (typeof jsonString === "string" && jsonString.trim() !== "") {
+        try {
+            return JSON.parse(jsonString);
+        } catch {
+            throw new Error(`${key} inválida`);
+        }
+    }
+    return jsonString;
+};
+
+/**
+ * função para buscar todos os registros de um modelo
+ */
+const getMany = async (model: any, options?: any) => {
+    return model.findMany(options);
+};
+
+//             CRIAÇÃO    ================================================================================================
 
 export const createUnit = async (data: Prisma.UnidadeHospitalarCreateInput) => {
-    const result = await prisma.unidadeHospitalar.create({
-        data: {
-            nome: data.nome,
-            tipo_unidade: data.tipo_unidade,
-            endereco: data.endereco
-        }
-    })
-    return result
+    // Uso do spread operator para sintaxe mais limpa
+    return prisma.unidadeHospitalar.create({ data });
 }
 
 
 export const createUser = async (data: any) => {
-  const id_unidade = Number(data.id_unidade);
-  if (Number.isNaN(id_unidade)) throw new Error("id_unidade inválido");
+    const id_unidade = parseId(data, 'id_unidade');
+    const data_nascimento = parseDate(data.data_nascimento, true);
 
-  const data_nascimento = data.data_nascimento ? new Date(data.data_nascimento) : null;
-  if (data_nascimento && isNaN(data_nascimento.getTime())) throw new Error("data_nascimento inválida");
-
-  const result = await prisma.paciente.create({
-    data: {
-      nome: String(data.nome ?? ""),
-      cpf: String(data.cpf ?? ""),
-      data_nascimento: data_nascimento ?? new Date(),
-      historico_clinico: data.historico_clinico ?? "",
-      id_unidade
-    }
-  });
-
-  return result;
+    return prisma.paciente.create({
+        data: {
+            nome: String(data.nome ?? ""),
+            cpf: String(data.cpf ?? ""),
+            data_nascimento,
+            historico_clinico: data.historico_clinico ?? "",
+            id_unidade
+        }
+    });
 }
 
 export const createDoctor = async (data: any) => {
-  const id_unidade = Number(data.id_unidade);
-  if (Number.isNaN(id_unidade)) throw new Error("id_unidade inválido");
+    const id_unidade = parseId(data, 'id_unidade');
+    const agenda_json = parseJson(data.agenda_json, 'agenda_json');
 
-  let agenda = data.agenda_json ?? null;
-  if (typeof agenda === "string" && agenda.trim() !== "") {
-    try {
-      agenda = JSON.parse(agenda);
-    } catch {
-      throw new Error("agenda_json inválida");
-    }
-  }
-
-  const result = await prisma.medico.create({
-    data: {
-      nome: String(data.nome ?? ""),
-      especialidade: String(data.especialidade ?? ""),
-      crm: String(data.crm ?? ""),
-      agenda_json: agenda,
-      id_unidade
-    }
-  });
-
-  return result;
+    return prisma.medico.create({
+        data: {
+            nome: String(data.nome ?? ""),
+            especialidade: String(data.especialidade ?? ""),
+            crm: String(data.crm ?? ""),
+            agenda_json,
+            id_unidade
+        }
+    });
 };
 
 export const createConsultation = async (data: any) => {
-  const id_paciente = Number(data.id_paciente);
-  const id_medico = Number(data.id_medico);
-  if (Number.isNaN(id_paciente) || Number.isNaN(id_medico)) throw new Error("id_paciente ou id_medico inválido");
+    const id_paciente = parseId(data, 'id_paciente');
+    const id_medico = parseId(data, 'id_medico');
+    const data_hora = parseDate(data.data_hora, true);
 
-  const date = data.data_hora ? new Date(data.data_hora) : new Date();
-  if (isNaN(date.getTime())) throw new Error("data_hora inválida");
-
-  const result = await prisma.consulta.create({
-    data: {
-      id_paciente,
-      id_medico,
-      data_hora: date,
-      status: data.status ?? "agendada",
-      tipo: data.tipo ?? "rotina"
-    }
-  });
-  return result;
+    return prisma.consulta.create({
+        data: {
+            id_paciente,
+            id_medico,
+            data_hora,
+            status: data.status ?? "agendada",
+            tipo: data.tipo ?? "rotina"
+        }
+    });
 };
+
 export const createMedicalRecord = async (data: any) => {
-  const id_consulta = Number(data.id_consulta);
-  if (Number.isNaN(id_consulta)) throw new Error("id_consulta inválido");
+    const id_consulta = parseId(data, 'id_consulta');
 
-  const consulta = await prisma.consulta.findUnique({ where: { id_consulta } });
-  if (!consulta) throw new Error("Consulta não encontrada");
+    const consulta = await prisma.consulta.findUnique({ where: { id_consulta } });
+    if (!consulta) throw new Error("Consulta não encontrada");
 
-  const result = await prisma.prontuario.create({
-    data: {
-      id_consulta,
-      data_registro: data.data_registro ? new Date(data.data_registro) : new Date(),
-      descricao: data.descricao ?? "",
-      prescricao: data.prescricao ?? ""
-    }
-  });
-  return result;
+    return prisma.prontuario.create({
+        data: {
+            id_consulta,
+            data_registro: parseDate(data.data_registro, true),
+            descricao: data.descricao ?? "",
+            prescricao: data.prescricao ?? ""
+        }
+    });
 };
 
+//             LISTAGEM   =========================================================
 
-
-/*  -------------------------- Listagem -------------------------- */
 
 export const getAllUser = async () => {
-    const result = await prisma.paciente.findMany({})
-
-    return result;
+    return getMany(prisma.paciente);
 }
 
-
 export const getAllUnit = async () => {
-    const result = await prisma.unidadeHospitalar.findMany({})
-
-    return result;
+    return getMany(prisma.unidadeHospitalar);
 }
 
 export const getAllDoctor = async () => {
-    const result = await prisma.medico.findMany({})
-
-    return result;
+    return getMany(prisma.medico);
 }
 
 export const getConsultationById = async (id: number) => {
@@ -147,16 +167,56 @@ export const getMedicalRecordById = async (id: number) => {
 };
 
 export const getAllConsultations = async () => {
-    // Usamos o include para trazer os dados do Paciente e do Médico,
-    // senão só viriam os IDs (id_paciente, id_medico)
-    const result = await prisma.consulta.findMany({
+    return getMany(prisma.consulta, {
         include: {
             paciente: true,
             medico: true
         },
         orderBy: {
-            data_hora: 'desc' // Ordenar da mais recente para a mais antiga
+            data_hora: 'desc'
         }
-    })
-    return result;
+    });
 }
+
+export const getAllMedicalRecords = async () => {
+    return getMany(prisma.prontuario, {
+        include: { 
+            consulta: {
+                include: {
+                    paciente: true, 
+                    medico: true
+                }
+            } 
+        },
+        orderBy: {
+            data_registro: 'desc'
+        }
+    });
+}
+
+//           DELETE    =================================================================
+
+export const deleteMedicalRecord = async (id: number) => {
+    //  verifica se existe
+    const prontuario = await prisma.prontuario.findUnique({ where: { id_prontuario: id } });
+    if (!prontuario) throw new Error("Prontuário não encontrado");
+
+    return prisma.prontuario.delete({
+        where: { id_prontuario: id },
+    });
+};
+
+export const deleteConsultation = async (id: number) => {
+    // verifica se há dependência (prontuário)
+    const hasMedicalRecord = await prisma.prontuario.findUnique({
+        where: { id_consulta: id }
+    });
+    
+    if (hasMedicalRecord) {
+        throw new Error("Não é possível deletar a consulta. Delete o prontuário associado primeiro.");
+    }
+
+    return prisma.consulta.delete({
+        where: { id_consulta: id },
+    });
+};

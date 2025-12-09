@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidaPlus - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <aside class="sidebar">
+            <header>
+                <div class="logo-area">
+                    <i class="fa-solid fa-heart-pulse logo-icon"></i>
+                    <h1>VidaPlus</h1>
+                </div>
+                <p>Gestão Hospitalar v2.0</p>
+            </header>
+
+            <nav class="tabs">
+                <button class="tab-button active" onclick="switchTab(event, 'unidades')">
+                    <i class="fa-solid fa-building"></i> Unidades
+                </button>
+                <button class="tab-button" onclick="switchTab(event, 'pacientes')">
+                    <i class="fa-solid fa-user-injured"></i> Pacientes
+                </button>
+                <button class="tab-button" onclick="switchTab(event, 'medicos')">
+                    <i class="fa-solid fa-user-doctor"></i> Médicos
+                </button>
+                <button class="tab-button" onclick="switchTab(event, 'consultas')">
+                    <i class="fa-solid fa-calendar-check"></i> Consultas
+                </button>
+                <button class="tab-button" onclick="switchTab(event, 'prontuarios')">
+                    <i class="fa-solid fa-file-medical"></i> Prontuários
+                </button>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            
+            <div id="unidades" class="tab-content active">
+                <div class="header-section">
+                    <h2>Unidades Hospitalares</h2>
+                    <span class="badge">Gestão de Locais</span>
+                </div>
+                
+                <form onsubmit="submitForm(event, 'unit')">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome da Unidade</label>
+                            <input type="text" name="nome" required placeholder="Ex: Hospital Central">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <input type="text" name="tipo_unidade" placeholder="Ex: Matriz, Filial" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" name="endereco" required placeholder="Endereço completo">
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fa-solid fa-plus"></i> Criar Unidade</button>
+                </form>
+                
+                <div id="unitMessage"></div>
+                <div class="list-container">
+                    <h3>Registros Recentes</h3>
+                    <div id="unitList"></div>
+                </div>
+            </div>
+
+            <div id="pacientes" class="tab-content">
+                <div class="header-section">
+                    <h2>Cadastro de Pacientes</h2>
+                    <span class="badge">Recepção</span>
+                </div>
+
+                <form onsubmit="submitForm(event, 'user')">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome Completo</label>
+                            <input type="text" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" name="cpf" placeholder="000.000.000-00" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data de Nascimento</label>
+                            <input type="date" name="data_nascimento" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade</label>
+                            <select name="id_unidade" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Histórico Clínico</label>
+                        <textarea name="historico_clinico" rows="3" placeholder="Observações importantes..."></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fa-solid fa-user-plus"></i> Criar Paciente</button>
+                </form>
+
+                <div id="userMessage"></div>
+                <div class="list-container">
+                    <h3>Pacientes na Base</h3>
+                    <div id="userList"></div>
+                </div>
+            </div>
+
+            <div id="medicos" class="tab-content">
+                <div class="header-section">
+                    <h2>Corpo Clínico</h2>
+                    <span class="badge">RH Médico</span>
+                </div>
+
+                <form onsubmit="submitForm(event, 'doctor')">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome do Médico</label>
+                            <input type="text" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CRM</label>
+                            <input type="text" name="crm" placeholder="UF/12345" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Especialidade</label>
+                            <input type="text" name="especialidade" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade</label>
+                            <select name="id_unidade" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Agenda (JSON)</label>
+                        <textarea name="agenda_json" rows="3" required placeholder='{"seg": "08:00-18:00"}'></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fa-solid fa-user-md"></i> Cadastrar Médico</button>
+                </form>
+
+                <div id="doctorMessage"></div>
+                <div class="list-container">
+                    <h3>Lista de Médicos</h3>
+                    <div id="doctorList"></div>
+                </div>
+            </div>
+
+            <div id="consultas" class="tab-content">
+                <div class="header-section">
+                    <h2>Agendamento</h2>
+                    <span class="badge">Central</span>
+                </div>
+
+                <form onsubmit="submitForm(event, 'consultation')">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Paciente</label>
+                            <select name="id_paciente" required>
+                                <option value="">Buscar paciente...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Médico</label>
+                            <select name="id_medico" required>
+                                <option value="">Buscar médico...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data e Hora</label>
+                            <input type="datetime-local" name="data_hora">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo">
+                                <option value="rotina">Rotina</option>
+                                <option value="urgencia">Urgência</option>
+                                <option value="retorno">Retorno</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="agendada">Agendada</option>
+                            <option value="realizada">Realizada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fa-regular fa-calendar-plus"></i> Agendar</button>
+                </form>
+
+                <div id="consultationMessage"></div>
+                <div class="list-container">
+                    <h3>Próximas Consultas</h3>
+                    <div id="consultationList"></div>
+                </div>
+            </div>
+
+            <div id="prontuarios" class="tab-content">
+                <div class="header-section">
+                    <h2>Prontuário Eletrônico</h2>
+                    <span class="badge">Médico</span>
+                </div>
+
+                <form onsubmit="submitForm(event, 'medicalRecord')">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Consulta Vinculada</label>
+                            <select name="id_consulta" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Registro</label>
+                            <input type="datetime-local" name="data_registro">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea name="descricao" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Prescrição</label>
+                        <textarea name="prescricao" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fa-solid fa-save"></i> Salvar Prontuário</button>
+                </form>
+
+                <div id="medicalRecordMessage"></div>
+                <div class="list-container">
+                    <h3>Histórico</h3>
+                    <div id="medicalRecordList"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createConsultation, createDoctor, createMedicalRecord, createUnit, createUser, getAllConsultations, getAllDoctor, getAllUnit, getAllUser, getConsultationById, getDoctorAgenda, getMedicalRecordById } from "../controllers/vidaPlusController";
+import { createConsultation, createDoctor, createMedicalRecord, createUnit, createUser, deleteConsultation, deleteMedicalRecord, getAllConsultations, getAllDoctor, getAllMedicalRecords, getAllUnit, getAllUser, getConsultationById, getDoctorAgenda, getMedicalRecordById } from "../controllers/vidaPlusController";
 
 
 export const mainRouter = Router();
@@ -15,7 +15,6 @@ mainRouter.post("/consultation", createConsultation)
 
 mainRouter.post("/medicalRecord", createMedicalRecord)
 
-
 mainRouter.get("/users", getAllUser);
 
 mainRouter.get("/units", getAllUnit);
@@ -29,6 +28,14 @@ mainRouter.get("/consultations/doctor/:medicoId/:id", getDoctorAgenda)
 mainRouter.get("/medicalRecord/:id", getMedicalRecordById)
 
 mainRouter.get("/consultations", getAllConsultations)
+
+mainRouter.get("/medicalrecords", getAllMedicalRecords)
+
+mainRouter.delete('/consultations/:id', deleteConsultation);
+
+mainRouter.delete('/medicalrecords/:id', deleteMedicalRecord);
+
+
 
 
 
